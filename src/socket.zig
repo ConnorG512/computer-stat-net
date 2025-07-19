@@ -21,11 +21,20 @@ pub const Socket = struct {
         self.listenOnSocket();
     }
     pub fn closeSocket(self: *Socket) void {
-        if (linux.close(@intCast(self.opened_socket)) != 0) {
+        const result = linux.close(@intCast(self.opened_socket)); 
+        if (@as(isize, @bitCast(result)) == -1) {
             log.debug("Failed to close the socket!", .{});
         }
         log.debug("Socket closed!", .{});
     }
+    pub fn acceptConnection(self: *Socket) usize {
+        const client_fd = linux.accept(@intCast(self.opened_socket), @ptrCast(&self.socket_address), &self.sock_len); 
+        if (@as(isize, @bitCast(client_fd)) == -1) {
+            log.err("Cannot accept socket {d}.", .{client_fd});
+        }    
+        return client_fd;
+    }
+
     fn createSocket(self: *Socket) void {
         self.opened_socket = linux.socket(linux.AF.INET, linux.SOCK.STREAM , 0);
         log.debug("Socket: {d}.", .{self.opened_socket});
@@ -38,15 +47,9 @@ pub const Socket = struct {
         log.debug("Bind Result: {d}.", .{result});
     }
     fn listenOnSocket(self: *Socket) void {
-        if (linux.listen(@intCast(self.opened_socket), self.queue_len) != 0) {
+        const result = linux.listen(@intCast(self.opened_socket), self.queue_len); 
+        if (@as(isize, @bitCast(result)) == -1) {
             std.log.err("Could not listen on socket!", .{});
         }
-    }
-    pub fn acceptConnection(self: *Socket) usize {
-        const client_fd = linux.accept(@intCast(self.opened_socket), @ptrCast(&self.socket_address), &self.sock_len); 
-        if (@as(isize, @bitCast(client_fd)) == -1) {
-            log.err("Cannot accept socket {d}.", .{client_fd});
-        }    
-        return client_fd;
     }
 };
