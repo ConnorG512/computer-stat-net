@@ -10,7 +10,7 @@ pub fn main() !void {
     
     while (true) {
         const client_fd = current_socket.acceptConnection();
-        defer std.os.linux.close(client_fd);
+        defer _ = std.os.linux.close(@intCast(client_fd));
         log.debug("client_fd: {d}.", .{client_fd});
         try to_client_t.sendLoginMessage(&client_fd);
     }
