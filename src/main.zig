@@ -1,6 +1,5 @@
 const std = @import("std");
 const log = std.log;
-const rand = @import("randomgen-util.zig").RandomGen;
 const socket_t = @import("socket.zig").Socket;
 const to_client_t = @import("write-to-client.zig").ToClient;
 
@@ -11,6 +10,7 @@ pub fn main() !void {
     
     while (true) {
         const client_fd = current_socket.acceptConnection();
+        defer std.os.linux.close(client_fd);
         log.debug("client_fd: {d}.", .{client_fd});
         try to_client_t.sendLoginMessage(&client_fd);
     }
