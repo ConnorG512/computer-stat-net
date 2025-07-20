@@ -11,6 +11,7 @@ pub fn main() !void {
     while (true) {
         const client_fd = current_socket.acceptConnection();
         log.debug("client_fd: {d}.", .{client_fd});
+        try printWelcome(&client_fd);
     }
 }
 
