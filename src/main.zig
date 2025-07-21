@@ -2,7 +2,7 @@ const std = @import("std");
 const log = std.log;
 const socket_t = @import("socket.zig").Socket;
 const to_client_t = @import("write-to-client.zig").ToClient;
-
+const read_from_clinet_t = @import("read-from-client.zig").Reader;
 pub fn main() !void {
     var current_socket = socket_t.init();
     defer current_socket.closeSocket();
@@ -13,6 +13,10 @@ pub fn main() !void {
         defer _ = std.os.linux.close(@intCast(client_fd));
         log.debug("client_fd: {d}.", .{client_fd});
         try to_client_t.sendLoginMessage(&client_fd);
+        
+        var buffer: [32]u8 = undefined;
+        read_from_clinet_t.readMessageFromClient(&client_fd, buffer[0..]);
+        log.debug("{s}", .{buffer});
     }
 }
 
