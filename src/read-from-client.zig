@@ -5,6 +5,7 @@ const log = std.log;
 pub const AvailableInputs = enum {
     unknown,
     help,
+    cpu,
 };
 
 pub const Reader = struct {
@@ -16,6 +17,10 @@ pub const Reader = struct {
         if (std.mem.eql(u8, buffer, "help")) {
             log.debug("(identifyCommand) help command hit.", .{});
             return .help;
+        }
+        if (std.mem.eql(u8, buffer, "cpu")) {
+            log.debug("(identifyCommand) cpu command hit.", .{});
+            return .cpu;
         }
         else {
             log.debug("(identifyCommand) none command hit.", .{});
