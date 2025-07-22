@@ -5,13 +5,13 @@ const linux = std.os.linux;
 const available_commands_enum = @import("read-from-client.zig").AvailableInputs;
 
 pub const CommandParser = struct {
-    pub fn parseCommand(chosen_command: available_commands_enum, client_fd: *const usize) void {
+    pub fn parseCommand(chosen_command: available_commands_enum, client_fd: *const usize) !void {
         switch (chosen_command) {
             .unknown => {
                 unknownCommand(client_fd);
             },
             .cpu => {
-                cpuCommand(client_fd);
+                try cpuCommand(client_fd);
             },
             .help => {
                 helpCommand(client_fd);
@@ -26,15 +26,18 @@ pub const CommandParser = struct {
         // TODO
         log.debug("(helpCommand) Called!", .{});
     }
-    fn cpuCommand(_: *const usize) void {
+    fn cpuCommand(_: *const usize) !void {
         // TODO
         log.debug("(cpuCommand) Called!", .{});
         
-        // var buffer = std.heap.page_allocator.alloc(u8, 4096);
-        // defer std.heap.page_allocator.free(buffer);
+        const buffer = try std.heap.page_allocator.alloc(u8, 4096);
+        defer std.heap.page_allocator.free(buffer);
 
         const file_id: usize = linux.open("/proc/stat", .{}, 0);
         defer _ = linux.close(@intCast(file_id));
         log.debug("(cpuCommand)File: {d}", .{file_id});
+
+        _ = linux.read(@intCast(file_id), buffer.ptr, buffer.len);
+        log.debug("{s}", .{buffer});
     }
 };
