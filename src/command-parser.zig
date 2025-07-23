@@ -30,17 +30,17 @@ pub const CommandParser = struct {
         // TODO
         log.debug("(cpuCommand) Called!", .{});
         
-        const buffer_size: u16 = comptime 1024;
-        const buffer = try std.heap.page_allocator.alloc(u8, buffer_size);
-        defer std.heap.page_allocator.free(buffer);
+        const of_buffer_size: u16 = comptime 1024;
+        var of_buffer: [of_buffer_size]u8 = undefined;
+        const of_fba = std.heap.FixedBufferAllocator.init(&of_buffer);
 
         const file_id: usize = linux.open("/proc/cpuinfo", .{}, 0);
         defer _ = linux.close(@intCast(file_id));
         log.debug("(cpuCommand)File: {d}", .{file_id});
 
-        _ = linux.read(@intCast(file_id), buffer.ptr, buffer.len);
+        _ = linux.read(@intCast(file_id), of_fba.buffer.ptr, of_fba.buffer.len);
 
-        var cpu_token = std.mem.tokenizeAny(u8, buffer, "\n");
+        var cpu_token = std.mem.tokenizeAny(u8, of_fba.buffer, "\n");
         var index: u8 = 0;
         while (cpu_token.next()) |current_token| {
             if (index == 4) {
