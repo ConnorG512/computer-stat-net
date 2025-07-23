@@ -15,7 +15,7 @@ pub const Socket = struct {
     pub fn init() Socket {
         return .{};
     }
-    pub fn initSocket(self: *Socket) void {
+    pub fn startSocket(self: *Socket) void {
         self.createSocket();
         self.bindSocket();
         self.listenOnSocket();
