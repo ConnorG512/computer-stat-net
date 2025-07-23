@@ -26,11 +26,12 @@ pub const CommandParser = struct {
         // TODO
         log.debug("(helpCommand) Called!", .{});
     }
-    fn cpuCommand(_: *const usize) !void {
+    fn cpuCommand(client_fd: *const usize) !void {
         // TODO
         log.debug("(cpuCommand) Called!", .{});
         
-        const buffer = try std.heap.page_allocator.alloc(u8, 4096);
+        const buffer_size: u16 = comptime 1024;
+        const buffer = try std.heap.page_allocator.alloc(u8, buffer_size);
         defer std.heap.page_allocator.free(buffer);
 
         const file_id: usize = linux.open("/proc/cpuinfo", .{}, 0);
@@ -38,16 +39,31 @@ pub const CommandParser = struct {
         log.debug("(cpuCommand)File: {d}", .{file_id});
 
         _ = linux.read(@intCast(file_id), buffer.ptr, buffer.len);
-        
-        // const cpu_category = comptime [_][]u8 {
-        //     "user", "nice", "system", "idle", "iowait", "irq", "softirq"
-        // };
-        // var token_by_line = std.mem.tokenizeAny(u8, buffer, " ");
-        // var index: u16 = 0;
-        // while (token_by_line.next()) |current_token| {
-            // _ = linux.write(@intCast(client_fd.*), current_token.ptr, current_token.len);
-        //     std.debug.print("Index: {d}\n Token: {s}\n\n", .{index, current_token});
-        //     index += 1;
-        // }
+
+        var cpu_token = std.mem.tokenizeAny(u8, buffer, "\n");
+        var index: u8 = 0;
+        while (cpu_token.next()) |current_token| {
+            if (index == 4) {
+                _ = linux.write(@intCast(client_fd.*), current_token.ptr, current_token.len);
+                return;
+            }
+            index += 1;
+        }
     }
 };
+
+test "print-cpuinfo-token" {
+    const buffer = try std.heap.page_allocator.alloc(u8, 4096);
+    defer std.heap.page_allocator.free(buffer);
+
+    const file_id: usize = linux.open("/proc/cpuinfo", .{}, 0);
+    defer _ = linux.close(@intCast(file_id));
+    _ = linux.read(@intCast(file_id), buffer.ptr, buffer.len);
+
+    var cpu_token = std.mem.tokenizeAny(u8, buffer, "\n"); 
+    var index: u16 = 0;
+    while (cpu_token.next()) |current_token| {
+        std.debug.print("Token: {d}\n{s}\n\n", .{index, current_token});
+        index += 1;
+    }
+}
