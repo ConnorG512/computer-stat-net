@@ -16,6 +16,9 @@ pub const CommandParser = struct {
             .help => {
                 helpCommand(client_fd);
             },
+            .exit => {
+                exitCommand(client_fd);
+            },
         }
     }
     fn unknownCommand(client_fd: *const usize) void {
@@ -59,6 +62,10 @@ pub const CommandParser = struct {
             }
             index += 1;
         }
+    }
+    fn exitCommand(client_fd: *const usize) !void {
+        log.debug("(exitCommand) Called!", .{});
+        linux.close(@intCast(client_fd.*));
     }
 };
 
