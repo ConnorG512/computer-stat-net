@@ -18,9 +18,12 @@ pub const CommandParser = struct {
             },
         }
     }
-    fn unknownCommand(_: *const usize) void {
+    fn unknownCommand(client_fd: *const usize) void {
         // TODO
         log.debug("(unknownCommand) Called!", .{});
+        const unknown_message = comptime "Unknown command, please see \"help\" for more information.\n";
+        _ = linux.write(@intCast(client_fd.*), unknown_message, unknown_message.len);
+
     }
     fn helpCommand(client_fd: *const usize) void {
         log.debug("(helpCommand) Called!", .{});
