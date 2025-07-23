@@ -22,9 +22,17 @@ pub const CommandParser = struct {
         // TODO
         log.debug("(unknownCommand) Called!", .{});
     }
-    fn helpCommand(_: *const usize) void {
-        // TODO
+    fn helpCommand(client_fd: *const usize) void {
         log.debug("(helpCommand) Called!", .{});
+        const help_messages = comptime [_][]const u8 {
+            "Available Commands: \n",
+            "\thelp\n",
+            "\tcpu\n",
+        };
+
+        for (help_messages) |message| {
+            _ = linux.write(@intCast(client_fd.*), message.ptr, message.len);
+        }
     }
     fn cpuCommand(client_fd: *const usize) !void {
         log.debug("(cpuCommand) Called!", .{});
