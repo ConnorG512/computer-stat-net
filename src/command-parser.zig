@@ -27,7 +27,6 @@ pub const CommandParser = struct {
         log.debug("(helpCommand) Called!", .{});
     }
     fn cpuCommand(client_fd: *const usize) !void {
-        // TODO
         log.debug("(cpuCommand) Called!", .{});
         
         const of_buffer_size: u16 = comptime 1024;
