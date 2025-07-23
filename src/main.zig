@@ -19,7 +19,7 @@ pub fn main() !void {
         var buffer: [32]u8 = undefined;
         const input_len = read_from_clinet_t.readMessageFromClient(&client_fd, buffer[0..]);
         const client_chosen_command = read_from_clinet_t.identifyCommand(buffer[0..input_len - 1]);
-        CommandParser.parseCommand(client_chosen_command);
+        try CommandParser.parseCommand(client_chosen_command, &client_fd);
     }
 }
 
