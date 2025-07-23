@@ -6,6 +6,7 @@ pub const AvailableInputs = enum {
     unknown,
     help,
     cpu,
+    exit,
 };
 
 pub const Reader = struct {
@@ -21,6 +22,10 @@ pub const Reader = struct {
         if (std.mem.eql(u8, buffer, "cpu")) {
             log.debug("(identifyCommand) cpu command hit.", .{});
             return .cpu;
+        }
+        if (std.mem.eql(u8, buffer, "exit")) {
+            log.debug("(identifyCommand) cpu command hit.", .{});
+            return .exit;
         }
         else {
             log.debug("(identifyCommand) none command hit.", .{});
