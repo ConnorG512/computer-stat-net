@@ -22,8 +22,10 @@ pub fn main() !void {
         while (true) {
             const input_len = read_from_clinet_t.readMessageFromClient(&client_fd, client_input_buffer[0..]);
             const client_chosen_command = read_from_clinet_t.identifyCommand(client_input_buffer[0..input_len - 1]);
-
             try CommandParser.parseCommand(client_chosen_command, &client_fd);
+            if (client_chosen_command == .exit) {
+                break;
+            }
         }
     }
 }
