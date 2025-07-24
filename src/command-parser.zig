@@ -17,7 +17,7 @@ pub const CommandParser = struct {
                 helpCommand(client_fd);
             },
             .exit => {
-                exitCommand(client_fd);
+               try exitCommand(client_fd);
             },
         }
     }
@@ -65,7 +65,7 @@ pub const CommandParser = struct {
     }
     fn exitCommand(client_fd: *const usize) !void {
         log.debug("(exitCommand) Called!", .{});
-        linux.close(@intCast(client_fd.*));
+        _ = linux.close(@intCast(client_fd.*));
     }
 };
 
